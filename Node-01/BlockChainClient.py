@@ -86,7 +86,7 @@ while True:
         transaction_dict, signature = generate_transaction(sender_address, sender_private_key, recipient_address, value)
         print ("\nTransaction : " + str(transaction_dict))
         print ("\nSignature : " + signature)
-        response = requests.get("http://127.0.0.1:9000/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
+        response = requests.get("http://127.0.0.1:5010/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
         print ()
         print (response.status_code, response.reason)
         print (response.json())

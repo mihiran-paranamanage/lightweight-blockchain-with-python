@@ -19,6 +19,7 @@ from time import time
 from urllib.parse import urlparse
 from uuid import uuid4
 
+import threading
 import requests
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
@@ -78,6 +79,8 @@ class Blockchain:
         transaction_verification = self.verify_transaction_signature(sender_address, signature, transaction)
         if transaction_verification:
             self.transactions.append(transaction)
+            if len(self.transactions) > 2:
+                mine()
             return len(self.chain) + 1
         else:
             return False
@@ -92,11 +95,13 @@ class Blockchain:
                 'transactions': self.transactions,
                 'nonce': nonce,
                 'previous_hash': previous_hash}
-
+            
         # Reset the current list of transactions
         self.transactions = []
 
+        # Add block to the blockchain
         self.chain.append(block)
+        
         return block
 
 
@@ -169,6 +174,8 @@ class Blockchain:
         Resolve conflicts between blockchain's nodes
         by replacing our chain with the longest one in the network.
         """
+        threading.Timer(10.0, self.resolve_conflicts).start()
+        
         neighbours = self.nodes
         new_chain = None
 
@@ -185,7 +192,7 @@ class Blockchain:
                 chain = response.json()['chain']
 
                 # Check if the length is longer and the chain is valid
-                if length > max_length and self.valid_chain(chain):
+                if length > max_length:
                     max_length = length
                     new_chain = chain
 
@@ -203,12 +210,15 @@ CORS(app)
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
-@app.route('/')
-def index():
-    return render_template('./index.html')
-
-@app.route('/configure')
-def configure():
+# Synchronize nodes
+blockchain.resolve_conflicts()
+
+@app.route('/')
+def index():
+    return render_template('./index.html')
+
+@app.route('/configure')
+def configure():
     return render_template('./configure.html')
 
 
@@ -216,19 +226,27 @@ def configure():
 def new_transaction():
     data = request.args
 
-    # Check that the required fields are in the data
-    required = ['sender_address', 'recipient_address', 'value', 'signature']
+    # Check that the required fields are in the data
+
+    required = ['sender_address', 'recipient_address', 'value', 'signature']
+
     if not all(k in data for k in required):
-        response = {'message': 'Missing Values!'}
+        response = {'message': 'Missing Values!'}
+
         return jsonify(response), 406
 
     transaction_result = blockchain.submit_transaction(data['sender_address'], data['recipient_address'], data['value'], data['signature'])
 
-    if transaction_result == False:
-        response = {'message': 'Invalid Transaction!'}
-        return jsonify(response), 406
-    else:
-        response = {'message': 'Transaction will be added to Block '+ str(transaction_result)}
+    if transaction_result == False:
+
+        response = {'message': 'Invalid Transaction!'}
+
+        return jsonify(response), 406
+
+    else:
+
+        response = {'message': 'Transaction will be added to Block '+ str(transaction_result)}
+
         return jsonify(response), 201
 
 
@@ -315,7 +333,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=9000, type=int, help='port to listen on')
+    parser.add_argument('-p', '--port', default=5030, type=int, help='port to listen on')
     args = parser.parse_args()
     port = args.port
 
