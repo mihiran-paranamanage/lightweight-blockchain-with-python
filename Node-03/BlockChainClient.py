@@ -1,12 +1,11 @@
 '''
-title           : blockchain_client.py
+title           : BlockchainClient.py
 description     : A blockchain client implemenation, with the following features
                   - Wallets generation using Public/Private key encryption (based on RSA algorithm)
                   - Generation of transactions with RSA encryption
 '''
 
 from collections import OrderedDict
-
 import binascii
 
 import Crypto
@@ -16,6 +15,9 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 
 import requests
+
+
+main_node = "127.0.0.1:5030"
 
 
 class Transaction:
@@ -65,31 +67,44 @@ wallet_exist = 0
 while True:
     
     if (wallet_exist==0):
-        print ("\nWallet Generation\n")
+        print ("\n--------Wallet Generation--------\n")
         permission_wallet = input('Would you like to generate a wallet ? (y/n) : ')
+        
         if (permission_wallet=='y'):
             private_key, public_key = new_wallet()
             print ("\nPrivate Key : " + private_key)
             print ("\nPublic Key : " + public_key)
             wallet_exist = 1
+            
         else:
             print ("\nBye !\n")
             break
 
-    print ("\nTransactions\n")
+    print ("\n--------Transactions--------\n")
     permission_trans = input('Do you need to make a transaction ? (y/n) : ')
+    
     if (permission_trans=='y'):
+        response = requests.get("http://"+ main_node +"/nodes/get")
+        print ("\nNodes")
+        nodes = response.json()['nodes']
+        print (nodes)
+        print ()
+        
         sender_address = public_key
         sender_private_key = private_key
         recipient_address = input('Recipient Address : ')
-        value = input('Value : ')
+        value = input('Token : ')
         transaction_dict, signature = generate_transaction(sender_address, sender_private_key, recipient_address, value)
         print ("\nTransaction : " + str(transaction_dict))
         print ("\nSignature : " + signature)
-        response = requests.get("http://127.0.0.1:5030/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
         print ()
-        print (response.status_code, response.reason)
-        print (response.json())
+        
+        for node in nodes:
+            print('Transaction have been sent to the Node http://' + node)
+            response = requests.get("http://" + node + "/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
+            print (response.json())
+            print ()
+            
     else:
         print ("\nBye !\n")
         break
