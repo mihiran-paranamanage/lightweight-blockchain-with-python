@@ -32,7 +32,7 @@ MINING_DIFFICULTY = 2
 class Blockchain:
 
     def __init__(self):
-        initial_token_owner = "30819f300d06092a864886f70d010101050003818d0030818902818100b4d57756be6b6e7c12683972810ae4644850498de7d38465546f8ad136469726b445dab22e79e504b2c1c385a2e9f14f9ed61551900672408a3eac7fe96d2b7ab1e65697a441c8bf8af6786f060cf74cf8effaf2950ea3a10706de2d63db3e9dce587ef49bb2c9670dc919f991800f70f53ad6079a8c6a90e4a3a9a77d97dae70203010001"
+        initial_token_owner = "30819f300d06092a864886f70d010101050003818d0030818902818100c8666c15a619133b258cceb1e8e3697b7b9d9c187ac17a8e0b9eff44213d46b34c1f7f6a371c0e13871d78c24660608389346cddb8453371d1c4445d28c5d4ba44ca5f59f3df06beffd14bd4a0a2ef1b2857e6ed7e940a28189552e2100e9b5bd0f76371ff89a01b15437e72e06d58f2cf9ae93da1c0c84a3123521e855cb33f0203010001"
         token = "SWITCHON"
         
         genesis_transaction = OrderedDict({'sender_address': "00", 
@@ -277,7 +277,7 @@ def full_chain():
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
     }
-    return jsonify(response), 200
+    return jsonify(response), 200   
 
 
 @app.route('/mine', methods=['GET'])
