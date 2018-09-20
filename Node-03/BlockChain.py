@@ -24,7 +24,7 @@ from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 
 
-main_node = "127.0.0.1:5030"
+main_node = "0.0.0.0:5030"
 main_node_port = 5030
 MINING_DIFFICULTY = 2
 
@@ -352,7 +352,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     port = args.port
 
-    app.run(host='127.0.0.1', port=port)
+    app.run(host='0.0.0.0', port=port)
 
 
 
