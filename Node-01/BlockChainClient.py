@@ -79,16 +79,25 @@ def new_wallet():
 @app.route('/transaction/generate', methods=['GET'])
 def generate_transaction():
     data = request.args
-    
+    response2 = ''
+    response3 = ''
+
     transaction = Transaction(data['sender_address'], data['sender_private_key'], data['recipient_address'], data['value'])
 
     transaction_dict = transaction.to_dict()
     signature = transaction.sign_transaction()
 
     response = requests.get("http://"+ main_node +"/nodes/get")
-        
+    print(response.json()['nodes'])
+
     for node in response.json()['nodes']:
-        response = requests.get("http://" + node + "/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
+        response2 = requests.get("http://" + node + "/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
+        if(response2.json()['action'] == 'success'):
+            response3 = response2
+
+    if response3:
+        return jsonify(response3.json()), 200
+    return jsonify(response2.json()), 200
 
 
 if __name__ == '__main__':

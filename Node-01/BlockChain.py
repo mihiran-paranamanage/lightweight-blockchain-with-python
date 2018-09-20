@@ -32,7 +32,7 @@ MINING_DIFFICULTY = 2
 class Blockchain:
 
     def __init__(self):
-        initial_token_owner = "30819f300d06092a864886f70d010101050003818d0030818902818100c8666c15a619133b258cceb1e8e3697b7b9d9c187ac17a8e0b9eff44213d46b34c1f7f6a371c0e13871d78c24660608389346cddb8453371d1c4445d28c5d4ba44ca5f59f3df06beffd14bd4a0a2ef1b2857e6ed7e940a28189552e2100e9b5bd0f76371ff89a01b15437e72e06d58f2cf9ae93da1c0c84a3123521e855cb33f0203010001"
+        initial_token_owner = "30819f300d06092a864886f70d010101050003818d0030818902818100ea5e3a39342974f35879eacaa6e82f2ff44180f7b8da0fe23b0924e4abbb482732b563bbbab8b1b5d8efd30516acb70428fb85d3769011d116131335b9b7c6f25621921c6e6cef2984eb6114b9d3685a4a170c2b605c7e61a8feb0f5448199829c524ef5e16e817a10db77740b5cde29b0e15113e4bbc2d779b42ffddd8350170203010001"
         token = "SWITCHON"
         
         genesis_transaction = OrderedDict({'sender_address': "00", 
@@ -43,7 +43,6 @@ class Blockchain:
         
         self.chain = []
         self.nodes = set()
-        #self.nodes.add(main_node)
 
         #Create genesis block
         genesis_block = self.create_block(0, '00')
@@ -239,26 +238,26 @@ def new_transaction():
     required = ['sender_address', 'recipient_address', 'value', 'signature']
 
     if not all(k in data for k in required):
-        response = {'message': 'Missing Values!'}
+        response = {'action': 'warning', 'message': 'Missing Values!'}
 
         return jsonify(response), 406
 
     transaction_result = blockchain.submit_transaction(data['sender_address'], data['recipient_address'], data['value'], data['signature'])
 
     if transaction_result==1:
-        response = {'message': 'Action will be added to Blockchain'}
-        return jsonify(response), 201
+        response = {'action': 'success', 'message': 'Action will be added to Blockchain'}
+        return jsonify(response), 200
 
     elif transaction_result==0:
-        response = {'message': 'Action is not Authorized !'}
+        response = {'action': 'danger', 'message': 'Action is not Authorized !'}
         return jsonify(response), 406
 
     elif transaction_result==-1:
-        response = {'message': 'Token does not exist !'}
+        response = {'action': 'warning', 'message': 'Token does not exist !'}
         return jsonify(response), 406
 
     elif transaction_result==-2:
-        response = {'message': 'Action Authentication Failed !'}
+        response = {'action': 'danger', 'message': 'Action Authentication Failed !'}
         return jsonify(response), 406
 
 
@@ -351,7 +350,6 @@ if __name__ == '__main__':
     port = args.port
 
     app.run(host='127.0.0.1', port=port)
-
 
 
 
