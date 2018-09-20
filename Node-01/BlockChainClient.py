@@ -27,7 +27,7 @@ from flask_cors import CORS
 
 
 main_node = "127.0.0.1:5010"
-main_node_port = 8080
+client_port = 4010
 
 
 class Transaction:
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=main_node_port, type=int, help='port to listen on')
+    parser.add_argument('-p', '--port', default=client_port, type=int, help='port to listen on')
     args = parser.parse_args()
     port = args.port
 

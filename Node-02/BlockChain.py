@@ -32,8 +32,8 @@ MINING_DIFFICULTY = 2
 class Blockchain:
 
     def __init__(self):
-        initial_token_owner = "00"
-        token = "00"
+        initial_token_owner = "30819f300d06092a864886f70d010101050003818d0030818902818100b7b230515a59c197381295a35e5262d66c64dcdb82907c84d5dbda9e3a55dfb5a077541d77430970690cd6bc1ff4c5872d7a7642ee450586e6c3c87174cace4cb1c8f0db6a5c6068906ac5ff858d9534a342df9dacfb621b0bcc8fd6cc36b8aca6ac5ff7fad702e88c4242efb21232287ccf8e1b2b771da878d5a4699124433b0203010001"
+        token = "SWITCHON"
         
         genesis_transaction = OrderedDict({'sender_address': "00", 
                                     'recipient_address': initial_token_owner,
@@ -43,7 +43,6 @@ class Blockchain:
         
         self.chain = []
         self.nodes = set()
-        #self.nodes.add(main_node)
 
         #Create genesis block
         genesis_block = self.create_block(0, '00')
@@ -75,7 +74,7 @@ class Blockchain:
                 if chain_transaction['value']==transaction['value']:
                     
                     if chain_transaction['recipient_address']==transaction['sender_address']:
-                        return True
+                        return 1
                     else:
                         return 0
         return -1
@@ -110,11 +109,11 @@ class Blockchain:
 
         #Manages transactions from wallet to another wallet
         transaction_verification = self.verify_transaction_signature(sender_address, signature, transaction)
-        if transaction_verification:
+        if transaction_verification==1:
             self.transactions.append(transaction)
             if len(self.transactions) > 0:
                 mine()
-            return True
+            return transaction_verification
         else:
             return transaction_verification
 
@@ -221,6 +220,9 @@ blockchain = Blockchain()
 # Synchronize nodes
 blockchain.resolve_conflicts()
 
+# Register Main Node
+blockchain.register_node(main_node)
+
 
 @app.route('/')
 def index():
@@ -239,26 +241,26 @@ def new_transaction():
     required = ['sender_address', 'recipient_address', 'value', 'signature']
 
     if not all(k in data for k in required):
-        response = {'message': 'Missing Values!'}
+        response = {'action': 'warning', 'message': 'Missing Values!'}
 
         return jsonify(response), 406
 
     transaction_result = blockchain.submit_transaction(data['sender_address'], data['recipient_address'], data['value'], data['signature'])
 
-    if transaction_result:
-        response = {'message': 'Action will be added to Blockchain'}
-        return jsonify(response), 201
+    if transaction_result==1:
+        response = {'action': 'success', 'message': 'Action will be added to Blockchain'}
+        return jsonify(response), 200
 
     elif transaction_result==0:
-        response = {'message': 'Action is not Authorized !'}
+        response = {'action': 'danger', 'message': 'Action is not Authorized !'}
         return jsonify(response), 406
 
     elif transaction_result==-1:
-        response = {'message': 'Token does not exist !'}
+        response = {'action': 'warning', 'message': 'Token does not exist !'}
         return jsonify(response), 406
 
     elif transaction_result==-2:
-        response = {'message': 'Action Authentication Failed !'}
+        response = {'action': 'danger', 'message': 'Action Authentication Failed !'}
         return jsonify(response), 406
 
 
@@ -277,7 +279,7 @@ def full_chain():
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
     }
-    return jsonify(response), 200
+    return jsonify(response), 200   
 
 
 @app.route('/mine', methods=['GET'])
@@ -351,7 +353,6 @@ if __name__ == '__main__':
     port = args.port
 
     app.run(host='127.0.0.1', port=port)
-
 
 
 

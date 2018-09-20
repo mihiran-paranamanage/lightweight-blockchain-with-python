@@ -14,10 +14,20 @@ from Crypto.Hash import SHA
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 
+import hashlib
+import json
+from time import time
+from urllib.parse import urlparse
+from uuid import uuid4
+
+import threading
 import requests
+from flask import Flask, jsonify, request, render_template
+from flask_cors import CORS
 
 
 main_node = "127.0.0.1:5030"
+client_port = 4030
 
 
 class Transaction:
@@ -46,71 +56,56 @@ class Transaction:
         return binascii.hexlify(signer.sign(h)).decode('ascii')
 
 
+# Instantiate the Node
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/')
+def index():
+    return render_template('./make_transaction.html')
+
+@app.route('/wallet/new', methods=['GET'])
 def new_wallet():
 	random_gen = Crypto.Random.new().read
 	private_key = RSA.generate(1024, random_gen)
 	public_key = private_key.publickey()
 
-	return binascii.hexlify(private_key.exportKey(format='DER')).decode('ascii'), binascii.hexlify(public_key.exportKey(format='DER')).decode('ascii')
+	private_key = binascii.hexlify(private_key.exportKey(format='DER')).decode('ascii')
+	public_key = binascii.hexlify(public_key.exportKey(format='DER')).decode('ascii')
 
-def generate_transaction(sender_address, sender_private_key, recipient_address, value):  
-    transaction = Transaction(sender_address, sender_private_key, recipient_address, value)
+	response = {'private_key': private_key, 'public_key': public_key}
+	return jsonify(response), 200
+
+@app.route('/transaction/generate', methods=['GET'])
+def generate_transaction():
+    data = request.args
+    response2 = ''
+    response3 = ''
+
+    transaction = Transaction(data['sender_address'], data['sender_private_key'], data['recipient_address'], data['value'])
 
     transaction_dict = transaction.to_dict()
     signature = transaction.sign_transaction()
 
-    return transaction_dict, signature
+    response = requests.get("http://"+ main_node +"/nodes/get")
+    print(response.json()['nodes'])
+
+    for node in response.json()['nodes']:
+        response2 = requests.get("http://" + node + "/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
+        if(response2.json()['action'] == 'success'):
+            response3 = response2
+
+    if response3:
+        return jsonify(response3.json()), 200
+    return jsonify(response2.json()), 200
 
 
-wallet_exist = 0
+if __name__ == '__main__':
+    from argparse import ArgumentParser
 
-while True:
-    
-    if (wallet_exist==0):
-        print ("\n--------Wallet Generation--------\n")
-        permission_wallet = input('Would you like to generate a wallet ? (y/n) : ')
-        
-        if (permission_wallet=='y'):
-            private_key, public_key = new_wallet()
-            print ("\nPrivate Key : " + private_key)
-            print ("\nPublic Key : " + public_key)
-            wallet_exist = 1
-            
-        else:
-            print ("\nBye !\n")
-            break
+    parser = ArgumentParser()
+    parser.add_argument('-p', '--port', default=client_port, type=int, help='port to listen on')
+    args = parser.parse_args()
+    port = args.port
 
-    print ("\n--------Transactions--------\n")
-    permission_trans = input('Do you need to make a transaction ? (y/n) : ')
-    
-    if (permission_trans=='y'):
-        response = requests.get("http://"+ main_node +"/nodes/get")
-        print ("\nNodes")
-        nodes = response.json()['nodes']
-        print (nodes)
-        print ()
-        
-        sender_address = public_key
-        sender_private_key = private_key
-        recipient_address = input('Recipient Address : ')
-        value = input('Token : ')
-        transaction_dict, signature = generate_transaction(sender_address, sender_private_key, recipient_address, value)
-        print ("\nTransaction : " + str(transaction_dict))
-        print ("\nSignature : " + signature)
-        print ()
-        
-        for node in nodes:
-            print('Transaction have been sent to the Node http://' + node)
-            response = requests.get("http://" + node + "/transactions/new", params={'sender_address': transaction_dict['sender_address'], 'recipient_address': transaction_dict['recipient_address'], 'value': transaction_dict['value'], 'signature': signature})
-            print (response.json())
-            print ()
-            
-    else:
-        print ("\nBye !\n")
-        break
-    
-
-
-
-
-
+    app.run(host='127.0.0.1', port=port)

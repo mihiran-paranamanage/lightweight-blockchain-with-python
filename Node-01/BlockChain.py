@@ -32,8 +32,11 @@ MINING_DIFFICULTY = 2
 class Blockchain:
 
     def __init__(self):
-        initial_token_owner = "30819f300d06092a864886f70d010101050003818d0030818902818100ea5e3a39342974f35879eacaa6e82f2ff44180f7b8da0fe23b0924e4abbb482732b563bbbab8b1b5d8efd30516acb70428fb85d3769011d116131335b9b7c6f25621921c6e6cef2984eb6114b9d3685a4a170c2b605c7e61a8feb0f5448199829c524ef5e16e817a10db77740b5cde29b0e15113e4bbc2d779b42ffddd8350170203010001"
-        token = "SWITCHON"
+        #initial_token_owner = "30819f300d06092a864886f70d010101050003818d003081890281810093e23f8d9adc728b0154c366f0c76d18c9174111f59884a7eed710eef2496fdf4d97121b853c37f5c94d32492438d4b4bdf74f9d70b3ea81a9d1b3e3e6321ddfaffdb77b294e42bb38d3a65ab785fbbe2f5af4f5725ca5f90173a008f80d12e7eb055965a099b6399a451f953bded98664915f7617c7371d1575d7196603126f0203010001"
+        #token = "SWITCHON"
+
+        initial_token_owner = input('Token owner: ')
+        token = input('Token: ')
         
         genesis_transaction = OrderedDict({'sender_address': "00", 
                                     'recipient_address': initial_token_owner,
@@ -219,6 +222,9 @@ blockchain = Blockchain()
 
 # Synchronize nodes
 blockchain.resolve_conflicts()
+
+# Register Main Node
+blockchain.register_node(main_node)
 
 
 @app.route('/')
