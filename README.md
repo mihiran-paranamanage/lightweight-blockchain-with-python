@@ -24,9 +24,10 @@ This application is developed as a university project to demonstrate the blockch
 
 ### Usage
 
-* After the installation, now you have 6 terminals as 3 for clients and 3 for node servers. 
-* And also, now the token owner is Node-01 as you have given Node-01 client's Public Key before as initial token.
-* If you want to send that token to the Node-02 client, just put Node-02 Public Key as the Recipient Address, your token as the Token and click _Generate Transaction_ button.
+* After the installation, now you have 6 terminals as 3 for clients and 3 for its node servers. 
+* And also, now the token owner is Node-01 as you have given Node-01 client's Public Key as initial token.
+* If you want to pass that token to the Node-02 client, just put Node-02 Public Key as the Recipient Address, your token as the Token, and then click _Generate Transaction_ button.
+* Now you can see in all the 3 servers, the blockchain has been updated with the new transaction.
 
 ### Demo
 
