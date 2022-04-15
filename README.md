@@ -32,3 +32,8 @@ This application is developed as a university project to demonstrate the blockch
 ### Demo
 
 * [Click here](https://mihiran-paranamana.github.io/nft-marketplace-react-bootstrap/)
+
+### Contact Details
+
+* Email: mihiran.hlrm@gmail.com
+* SkypeId: live:mihiran.hlrm
