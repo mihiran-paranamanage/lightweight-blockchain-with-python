@@ -1,6 +1,6 @@
 # Lightweight Blockchain with Python
 
-This application is developed as a university project to demonstrate the blockchain transaction flow and how it works in a high level programming language like python.
+This application is developed as part of a university research project to demonstrate the blockchain transaction flow and how it works in a high level programming language like python.
 
 ### Languages & Tools
 * Python
