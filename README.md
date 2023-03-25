@@ -36,4 +36,5 @@ This application is developed as part of a university research project to demons
 ### Contact Details
 
 * Email: mihiran.hlrm@gmail.com
+* LinkedIn: https://www.linkedin.com/in/mihiran-paranamana/
 * SkypeId: live:mihiran.hlrm
