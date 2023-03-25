@@ -31,7 +31,7 @@ This application is developed as part of a university research project to demons
 
 ### Demo
 
-* [Click here](https://drive.google.com/file/d/1AghWjnDYNifhd31NU7D4iE-fBYx7VhhL/view?usp=sharing) to see the demo video.
+* [Click here](https://drive.google.com/file/d/1L0tfpnvbFruSjDrxMi6Yr0tKX565Rs7h/view?usp=sharing) to see the demo video.
 
 ### Contact Details
 
